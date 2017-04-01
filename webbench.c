@@ -26,32 +26,32 @@
 #include <signal.h>
 
 /* values */
-volatile int timerexpired=0;
-int speed=0;
-int failed=0;
-int bytes=0;
+static volatile int timerexpired=0;
+static int speed=0;
+static int failed=0;
+static int bytes=0;
 
 /* globals */
-int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
+static int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 /* Allow: GET, HEAD, OPTIONS, TRACE */
 #define METHOD_GET 0
 #define METHOD_HEAD 1
 #define METHOD_OPTIONS 2
 #define METHOD_TRACE 3
 #define PROGRAM_VERSION "1.5"
-int method=METHOD_GET;
-int clients=1;
-int force=0;
-int force_reload=0;
-int proxyport=80;
-char *proxyhost=NULL;
-int benchtime=30;
+static int method=METHOD_GET;
+static int clients=1;
+static int force=0;
+static int force_reload=0;
+static int proxyport=80;
+static char *proxyhost=NULL;
+static int benchtime=30;
 
 /* internal */
-int mypipe[2];
-char host[MAXHOSTNAMELEN];
+static int mypipe[2];
+static char host[MAXHOSTNAMELEN];
 #define REQUEST_SIZE 2048
-char request[REQUEST_SIZE];
+static char request[REQUEST_SIZE];
 
 static const struct option long_options[]=
 {
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
             case 't': benchtime=atoi(optarg);break;	     
             case 'p': 
             /* proxy server parsing server:port */
-            tmp=strrchr(optarg,':');
+            tmp=strrchr(optarg,':');//找到最后一个:出现的位置
             proxyhost=optarg;
             if(tmp==NULL)
             {
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
             proxyport=atoi(tmp+1);break;
             case ':':
             case 'h':
-            case '?': usage();return 2;break;
+            case '?': usage();return 2;
             case 'c': clients=atoi(optarg);break;
         }
     }
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     if(benchtime==0) benchtime=30;
  
     /* Copyright */
-    fprintf(stderr,"Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
+    fprintf(stderr,"Webbench - Simple Web Benchmark " PROGRAM_VERSION "\n"
             "Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.\n"
             );
  
@@ -220,7 +220,7 @@ void build_request(const char *url)
     char tmp[10];
     int i;
 
-    bzero(host,MAXHOSTNAMELEN);
+    bzero(host,MAXHOSTNAMELEN); //set N bytes host to 0.
     bzero(request,REQUEST_SIZE);
 
     if(force_reload && proxyhost!=NULL && http10<1) http10=1;
@@ -258,6 +258,7 @@ void build_request(const char *url)
     /* protocol/host delimiter */
     i=strstr(url,"://")-url+3;
 
+    /*strchr()找到一个/出现的位置*/
     if(strchr(url+i,'/')==NULL) {
         fprintf(stderr,"\nInvalid URL syntax - hostname don't ends with '/'.\n");
         exit(2);
